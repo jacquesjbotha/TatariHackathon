@@ -54,7 +54,7 @@ jobs:
 
       - name: Check variables
         run: |
-          echo "package location $AZURE#_WEBAPP_PACKAGE_PATH"
+          echo "package location $AZURE_WEBAPP_PACKAGE_PATH"
        
 
       - name: Build with dotnet
