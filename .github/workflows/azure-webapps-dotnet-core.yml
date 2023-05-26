@@ -52,9 +52,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      - name: Use variables
+      - name: Check variables
         run: |
-          echo "package location $AZURE#_WEBAPP_PACKAGE_PATH'
+          echo "package location $AZURE#_WEBAPP_PACKAGE_PATH"
        
 
       - name: Build with dotnet
