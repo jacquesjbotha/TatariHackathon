@@ -54,15 +54,8 @@ jobs:
 
       - name: Use variables
         run: |
-          echo "repository variable : $REPOSITORY_VAR"
-          echo "organization variable : $ORGANIZATION_VAR"
-          echo "overridden variable : $OVERRIDE_VAR"
-          echo "variable from shell environment : $env_var"
-          echo "$AZURE_WEBAPP_PACKAGE_PATH'
-        env:
-          REPOSITORY_VAR: ${{ vars.REPOSITORY_VAR }}
-          ORGANIZATION_VAR: ${{ vars.ORGANIZATION_VAR }}
-          OVERRIDE_VAR: ${{ vars.OVERRIDE_VAR }}
+          echo "package location $AZURE#_WEBAPP_PACKAGE_PATH'
+       
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
