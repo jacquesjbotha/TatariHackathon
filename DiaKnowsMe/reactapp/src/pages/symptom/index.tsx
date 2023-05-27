@@ -10,7 +10,12 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
 import {useRouter} from 'next/navigation';
 import axios from "axios";
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
 import { useNavigate } from "react-router-dom";
+import Additional from "../additional/index";
 
 export type userProps = {
   user: String,
@@ -25,7 +30,8 @@ export default function Symptom() {
   const [userGender, setUserGender] = React.useState<String>();
   const [userSymptom, setUserSymptom] = React.useState<String>();
   const [response, setResponse] = React.useState<String>();
-  // const navigate = useNavigate();
+  const [additional, setAdditional] = React.useState<String>();
+
   const router =useRouter();
 
   const handleUsernameChange = (
@@ -52,21 +58,43 @@ export default function Symptom() {
       setUserSymptom(event.target.value);
     };
 
+    const handleAdditionalChange = (
+      event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      ) => {
+        setAdditional(event.target.value);
+      };
 
-  const handleSubmit = () =>{
+    
+
+  const handleSubmit = 
+  () =>{
     const query = Object({
       patientName: username,
       age: userAge,
       gender: userGender,
       symptoms: userSymptom
     }) 
-    console.log(query);
     // Send data to the backend via POST
+    if (additional){
+      const additionalQuery = Object({
+        ...query,
+        additionalInfo: additional
+      });
+      axios.post('https://diaknowsmeapi.azurewebsites.net/GPT/Diagnose', additionalQuery)
+      .then ((res) => {
+        setResponse(res.data.likelyIssue);
+        // console.log(res.data.triageResponse);
+      })
+
+    }
+    else{
     axios.post('https://diaknowsmeapi.azurewebsites.net/GPT/InitialTriage',query) 
       .then ((res) =>{
         setResponse(res.data.triageResponse);
+        console.log(res.data.triageResponse);
       })
-    };
+    }
+  };
 
 
   return (
@@ -109,7 +137,25 @@ export default function Symptom() {
         onChange ={handleSymptomChange} />
       <br></br>
 
-      {response && <p>{response}</p> }
+
+      {response && <Card sx={{ minWidth: 275 }}>
+                    <CardContent>
+                      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                        Answer from ChatGPT:
+                      </Typography>
+                      <Typography variant="body2">
+                        {response}
+                        <br />
+                      </Typography>
+                    </CardContent>
+                  </Card>
+      }
+    <br />
+      {response &&   <TextField 
+                      id="outlined-basic" 
+                      label="Additonal Input" 
+                      variant="outlined"
+                      onChange ={handleAdditionalChange} />}
 
       <Button variant="contained"  
       onClick={handleSubmit}
