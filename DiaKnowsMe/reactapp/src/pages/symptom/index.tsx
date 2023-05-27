@@ -24,6 +24,7 @@ export default function Symptom() {
   const [userAge, setUserAge] = React.useState<String>();
   const [userGender, setUserGender] = React.useState<String>();
   const [userSymptom, setUserSymptom] = React.useState<String>();
+  const [response, setResponse] = React.useState<String>();
   // const navigate = useNavigate();
   const router =useRouter();
 
@@ -59,11 +60,11 @@ export default function Symptom() {
       gender: userGender,
       symptoms: userSymptom
     }) 
-    router.push("/additional", query);
+    console.log(query);
     // Send data to the backend via POST
     axios.post('https://diaknowsmeapi.azurewebsites.net/GPT/InitialTriage',query) 
       .then ((res) =>{
-        console.log(res);
+        setResponse(res.data.triageResponse);
       })
     };
 
@@ -107,11 +108,16 @@ export default function Symptom() {
         variant="outlined"
         onChange ={handleSymptomChange} />
       <br></br>
+
+      {response && <p>{response}</p> }
+
       <Button variant="contained"  
       onClick={handleSubmit}
       >
         Submit
-      </Button>      
+      </Button>   
+
+    
     </FormControl>
     </div>
     </Container>
