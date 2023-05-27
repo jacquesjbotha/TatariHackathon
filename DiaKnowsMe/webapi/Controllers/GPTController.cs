@@ -8,10 +8,7 @@ namespace webapi.Controllers
     [Route("[controller]")]
     public class GPTController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+
 
         private readonly ILogger<GPTController> _logger;
 
@@ -21,18 +18,32 @@ namespace webapi.Controllers
         }
                
 
-        [HttpPost(Name = "InitialTriage")]
+        [HttpPost("InitialTriage")]
         public async Task<GptResponse> PostAsync(string patientName="Ben", int age=35, string gender="Male", string symtoms="Headache") //string subject="2x2 digit multiplication"
         {
-            // Set your OpenAI API credentials
-            string apiKey = "";
-            string modelId = "gpt-3.5-turbo";
+
 
 
             // Set the prompt for the conversation
+
+            string prompt = $"I am a {age} year old {gender}. I have the following symtoms: {symtoms}. What questions would a doctor ask me to help diagnose my condition?";
+
+            return new GptResponse
+            {
+                TriageResponse = await CallChatGPT(prompt)
+            };
+
+        }
+
+        private static async Task<String> CallChatGPT(string prompt)
+        {
+
             string systemPrompt = "You are a medical doctor";
-            string prompt = $"I am a {age} year old {gender}. I have the following symtoms: {symtoms}. What questions would a doctor ask me to help diagnose my condition?" ;
-           
+
+            // Set your OpenAI API credentials
+            string apiKey = "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";
+            string modelId = "gpt-3.5-turbo";
+
             // Create an HTTP client
             using (var client = new HttpClient())
             {
@@ -67,11 +78,32 @@ namespace webapi.Controllers
                 // Display the model's reply
                 Console.WriteLine("Model's reply: " + reply);
 
-                return new GptResponse
-                {
-                    TriageResponse = reply
-                };
+                return reply;
             }
         }
+
+        [HttpPost("Diagnose")]
+        public async Task<DiagnoseResponse> Diagnose(string patientName = "Ben", int age = 35, string gender = "Male", string symtoms = "Headache", string additionalInfo = "Pain 10 out of 10") //string subject="2x2 digit multiplication"
+        {
+            string basePrompt = $"I am a {age} year old {gender}. I have the following symtoms: {symtoms} as well as {additionalInfo}.";
+
+            string likelyPrompt = $"{basePrompt} Can you provide a table with the possible causes of these symptoms and how likely they are.";
+
+            string specialistPrompt = $"{basePrompt} What type of specialist would you recommend for further assessment?";
+
+            string urgencyPrompt = $"{basePrompt} How urgent is this condition?";
+
+            return new DiagnoseResponse
+            {
+                likelyIssue = await CallChatGPT(likelyPrompt),
+                recommendedSpecialist = await CallChatGPT(specialistPrompt),
+                urgency = await CallChatGPT(urgencyPrompt)
+
+            };
+
+        }
     }
+
+
 }
+
