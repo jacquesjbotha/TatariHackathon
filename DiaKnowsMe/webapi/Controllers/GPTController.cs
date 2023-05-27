@@ -26,11 +26,11 @@ namespace webapi.Controllers
 
             // Set the prompt for the conversation
 
-            string prompt = $"I am a {age} year old {gender}. I have the following symtoms: {symtoms}. What questions would a doctor ask me to help diagnose my condition?";
+            string prompt = $"I am a {age} year old {gender}. I have the following symtoms: {symtoms}. What are the top 5 questions that a doctor might ask me to help diagnose my condition?";
 
             return new GptResponse
             {
-                TriageResponse = await CallChatGPT(prompt)
+                TriageResponse = formatGPTResponse(await CallChatGPT(prompt))
             };
 
         }
@@ -41,7 +41,7 @@ namespace webapi.Controllers
             string systemPrompt = "You are a medical doctor";
 
             // Set your OpenAI API credentials
-            string apiKey = "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";
+            string apiKey = "";
             string modelId = "gpt-3.5-turbo";
 
             // Create an HTTP client
@@ -101,6 +101,13 @@ namespace webapi.Controllers
 
             };
 
+        }
+
+        public static string formatGPTResponse(string response)
+        {
+            response = response.Replace("\n","<br>");
+
+            return response;
         }
     }
 
